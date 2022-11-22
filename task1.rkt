@@ -115,7 +115,6 @@ way
       =>(Add 'a "aa" (Add 'b "B" (Add 'a "A" (EmptyTbl)))))
 
 
-
 #| Q2.c
 In this q we return the first value that is keyed accordingly to the input
 of the symbol that we got.

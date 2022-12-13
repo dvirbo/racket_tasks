@@ -2,7 +2,7 @@
 
 
 #|
-********************************************************************************************
+  
   ██████╗  ██╗   ██╗ ███████╗ ███████╗ ████████╗ ██╗  ██████╗  ███╗   ██╗      ██╗
  ██╔═══██╗ ██║   ██║ ██╔════╝ ██╔════╝ ╚══██╔══╝ ██║ ██╔═══██╗ ████╗  ██║     ███║
  ██║   ██║ ██║   ██║ █████╗   ███████╗    ██║    ██║ ██║   ██║ ██╔██╗ ██║     ╚██║
@@ -10,7 +10,6 @@
  ╚██████╔╝ ╚██████╔╝ ███████╗ ███████║    ██║    ██║ ╚██████╔╝ ██║ ╚████║      ██║
   ╚══▀▀═╝   ╚═════╝  ╚══════╝ ╚══════╝    ╚═╝    ╚═╝  ╚═════╝  ╚═╝  ╚═══╝      ╚═╝
 
-********************************************************************************************
 The SE grammer:
 
 
@@ -72,14 +71,19 @@ ex3: ( number->string 156879 )
 |#
 
 
-#|******************************************************************************************
+#|
+  
   ██████╗  ██╗   ██╗ ███████╗ ███████╗ ████████╗ ██╗  ██████╗  ███╗   ██╗     ██████╗
  ██╔═══██╗ ██║   ██║ ██╔════╝ ██╔════╝ ╚══██╔══╝ ██║ ██╔═══██╗ ████╗  ██║     ╚════██╗
  ██║   ██║ ██║   ██║ █████╗   ███████╗    ██║    ██║ ██║   ██║ ██╔██╗ ██║      █████╔╝
  ██║▄▄ ██║ ██║   ██║ ██╔══╝   ╚════██║    ██║    ██║ ██║   ██║ ██║╚██╗██║     ██╔═══╝
  ╚██████╔╝ ╚██████╔╝ ███████╗ ███████║    ██║    ██║ ╚██████╔╝ ██║ ╚████║     ███████╗
   ╚══▀▀═╝   ╚═════╝  ╚══════╝ ╚══════╝    ╚═╝    ╚═╝  ╚═════╝  ╚═╝  ╚═══╝     ╚══════╝
-********************************************************************************************
+
+In this Q we use helper function "square" to calc the square of digit,
+and using "foldl" with + to sum all the squares in list.
+Using "map" in "foldl" we call "square" on evety element in the list.
+
 |#
 
 (: square : Number -> Number)
@@ -92,5 +96,118 @@ ex3: ( number->string 156879 )
 
 
  
-(test (sum-of-squares '(1 2 3)) => 14) 
+(test (sum-of-squares '(1 2 3)) => 14)
+(test (sum-of-squares '(-1 -2 -3)) => 14)
+(test (sum-of-squares '()) => 0)
+(test (sum-of-squares '(1)) => 1)
+(test (square 2) => 4)
  
+#|
+ 
+  ██████╗  ██╗   ██╗ ███████╗ ███████╗ ████████╗ ██╗  ██████╗  ███╗   ██╗     ██████╗
+ ██╔═══██╗ ██║   ██║ ██╔════╝ ██╔════╝ ╚══██╔══╝ ██║ ██╔═══██╗ ████╗  ██║     ╚════██╗
+ ██║   ██║ ██║   ██║ █████╗   ███████╗    ██║    ██║ ██║   ██║ ██╔██╗ ██║      █████╔╝
+ ██║▄▄ ██║ ██║   ██║ ██╔══╝   ╚════██║    ██║    ██║ ██║   ██║ ██║╚██╗██║      ╚═══██╗
+ ╚██████╔╝ ╚██████╔╝ ███████╗ ███████║    ██║    ██║ ╚██████╔╝ ██║ ╚████║     ██████╔╝
+  ╚══▀▀═╝   ╚═════╝  ╚══════╝ ╚══════╝    ╚═╝    ╚═╝  ╚═════╝  ╚═╝  ╚═══╝     ╚═════╝
+
+
+note: how to cover inner function test in racket
+|#
+
+
+
+
+(: createPolynomial : (Listof Number) -> (Number -> Number))
+ (define (createPolynomial coeffs) 
+
+  (: poly : (Listof Number) Number Integer Number -> Number) 
+  (define (poly argsL x power accum) 
+     (if (null? argsL) accum
+         (poly (rest argsL) x (+ 1 power) (+ accum (*(first argsL)(expt x power))))
+      )  
+  )
+   		
+  (: polyX : Number -> Number) 
+  (define (polyX x)
+    (poly coeffs x 0 0)
+   )
+ 
+  polyX
+   
+ )
+(define p_0 (createPolynomial '()))
+(test (p_0 4) => 0) 
+
+
+#|
+ 
+  The grammar of PLANG:
+    
+    <PLANG> ::= { poly <AEs> } { <AEs> }
+    
+    <AEs>   ::= <AE>
+            | <AE> <AEs>
+    
+    <AE>    ::= <num>
+            | {+ <AE> <AE> }
+            | {- <AE> <AE> }
+            | {* <AE> <AE> }
+            | {/ <AE> <AE> }
+
+|# 
+
+;; evaluation process of PLANG:
+
+(define-type PLANG 
+    [Poly (Listof AE) (Listof AE)]) 
+ 
+  (define-type AE 
+    [Num  Number] 
+    [Add  AE AE] 
+    [Sub  AE AE] 
+    [Mul  AE AE] 
+    [Div  AE AE]) 
+ 
+  (: parse-sexpr : Sexpr -> AE) 
+  ;; to convert s-expressions into AEs 
+  (define (parse-sexpr sexpr) 
+    (match sexpr 
+      [(number: n) (Num n)] 
+      [(list '+ lhs rhs) (Add (parse-sexpr lhs)  
+	   	 	 	 	   (parse-sexpr rhs))] 
+      [(list '- lhs rhs) (Sub (parse-sexpr lhs)
+                                           (parse-sexpr rhs))] 
+      [(list '* lhs rhs) (Mul (parse-sexpr lhs)  
+	   	 	 	 	   (parse-sexpr rhs))] 
+      [(list '/ lhs rhs) (Div (parse-sexpr lhs)  
+	   	 	 	 	   (parse-sexpr rhs))] 
+      [else (error 'parse-sexpr "bad syntax in ~s" sexpr)])) 
+
+
+  (: parse : String -> PLANG) 
+  ;; parses a string containing a PLANG expression to a PLANG AST
+   (define (parse str) 
+    (let ([code (string->sexpr str)])
+    (match code
+     [(list(list 'poly) (list x...)) (error 'parse "at least one coefficient is required in ~ s" code)]
+     [(list(list 'poly x...) null) (error 'parse "at least one point is required in ~ s" code)]
+     [(list(list 'poly x...) (list y...)) (Poly(LSexpr-To-LAE x) (LSexpr-To-LAE y))]
+     )
+   ))
+
+ (:LSexpr-To-LAE : (Listof Sexpr) -> (Listof AE))
+   (define (LSexpr-To-LAE LSxpr)
+   (map parse-sexpr LSxpr))
+
+
+(test (parse "{{poly 1 2 3} {1 2 3}}")  
+     => (Poly (list (Num 1) (Num 2) (Num 3))  
+              (list (Num 1) (Num 2) (Num 3)))) 
+(test (parse "{{poly } {1 2} }")  
+     =error> "parse: at least one coefficient is                        required in ((poly) (1 2))") 
+(test (parse "{{poly 1 2} {} }")       =error> "parse: at least one point is  
+                       required in ((poly 1 2) ())") 
+
+
+

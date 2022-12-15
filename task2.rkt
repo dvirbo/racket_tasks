@@ -199,9 +199,9 @@ every recursive call we return the accum with the sum of the curr poly
    (define (parse str) 
     (let ([code (string->sexpr str)])
     (match code
-     [(list(list 'poly) (list x...)) (error 'parse "at least one coefficient is required in ~ s" code)]
-     [(list(list 'poly x...) null) (error 'parse "at least one point is required in ~ s" code)]
-     [(list(list 'poly x...) (list y...)) (Poly(LSexpr-To-LAE x) (LSexpr-To-LAE y))]
+     [(list(list 'poly) (list x ...)) (error 'parse "at least one coefficient is required in ~ s" code)]
+     [(list(list 'poly x ...) '(null)) (error 'parse "at least one point is required in ~ s" code)]
+     [(list(list 'poly x ...) (list y ...)) (Poly(LSexpr-To-LAE x) (LSexpr-To-LAE y))]
      )
    ))
 
@@ -213,13 +213,39 @@ every recursive call we return the accum with the sum of the curr poly
 (test (parse "{{poly 1 2 3} {1 2 3}}")  
      => (Poly (list (Num 1) (Num 2) (Num 3)) (list (Num 1) (Num 2) (Num 3))))
 
-(test (parse "{{poly } {1 2} }")  
-     =error> "parse: at least one coefficient is
-                       required in ((poly) (1 2))")
 
 (test (parse "{{poly 1 2} {} }")
      =error> "parse: at least one point is  
-                       required in ((poly 1 2) ())") 
+                       required in ((poly 1 2) ())")
+
+
+
+;; evaluates AE expressions to numbers 
+  (define (eval expr) 
+    (cases expr 
+      [(Num n)  n] 
+      [(Add l r) (+ (eval l) (eval r))] 
+      [(Sub l r) (- (eval l) (eval r))] 
+      [(Mul l r) (* (eval l) (eval r))] 
+      [(Div l r) (/ (eval l) (eval r))]))
+
+  (: eval-poly : PLANG -> (Listof Number)) 
+  (define (eval-poly p-expr) 
+    (case p-expr
+      [(poly l r)(map (createPolynomial(map eval l)(map eval r)))]
+    )
+  ) 
+
+
+
+  (: run : String -> (Listof Number)) 
+  ;; evaluate a FLANG program contained in a string 
+  (define (run str) 
+    (eval-poly (parse str))) 
+
+
+
+
 
 
 

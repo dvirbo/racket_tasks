@@ -113,13 +113,15 @@ Using "map" in "foldl" we call "square" on evety element in the list.
 
 
 note: how to cover inner function test in racket
+
+ createPolynomia:
+First, call to polyX with the number that we pass, and then call poly
+that using tail recursion and calc the curr xi of the polynom and accumulate the first of the list
+ every call (tail recursion).
+every recursive call we return the accum with the sum of the curr poly
+ 
 |#
 
-
-
-
-(: createPolynomial : (Listof Number) -> (Number -> Number))
- (define (createPolynomial coeffs) 
 
   (: poly : (Listof Number) Number Integer Number -> Number) 
   (define (poly argsL x power accum) 
@@ -127,8 +129,11 @@ note: how to cover inner function test in racket
          (poly (rest argsL) x (+ 1 power) (+ accum (*(first argsL)(expt x power))))
       )  
   )
-   		
-  (: polyX : Number -> Number) 
+
+(: createPolynomial : (Listof Number) -> (Number -> Number))
+ (define (createPolynomial coeffs) 
+		
+  (: polyX : Number -> Number)
   (define (polyX x)
     (poly coeffs x 0 0)
    )
@@ -136,9 +141,11 @@ note: how to cover inner function test in racket
   polyX
    
  )
+
 (define p_0 (createPolynomial '()))
 (test (p_0 4) => 0) 
 
+(test (poly '(1 1 1) 2 0 0) => 7) 
 
 #|
  
@@ -158,6 +165,8 @@ note: how to cover inner function test in racket
 |# 
 
 ;; evaluation process of PLANG:
+
+
 
 (define-type PLANG 
     [Poly (Listof AE) (Listof AE)]) 
@@ -196,18 +205,22 @@ note: how to cover inner function test in racket
      )
    ))
 
- (:LSexpr-To-LAE : (Listof Sexpr) -> (Listof AE))
+ (: LSexpr-To-LAE : (Listof Sexpr) -> (Listof AE))
    (define (LSexpr-To-LAE LSxpr)
    (map parse-sexpr LSxpr))
 
 
 (test (parse "{{poly 1 2 3} {1 2 3}}")  
-     => (Poly (list (Num 1) (Num 2) (Num 3))  
-              (list (Num 1) (Num 2) (Num 3)))) 
+     => (Poly (list (Num 1) (Num 2) (Num 3)) (list (Num 1) (Num 2) (Num 3))))
+
 (test (parse "{{poly } {1 2} }")  
-     =error> "parse: at least one coefficient is                        required in ((poly) (1 2))") 
-(test (parse "{{poly 1 2} {} }")       =error> "parse: at least one point is  
+     =error> "parse: at least one coefficient is
+                       required in ((poly) (1 2))")
+
+(test (parse "{{poly 1 2} {} }")
+     =error> "parse: at least one point is  
                        required in ((poly 1 2) ())") 
+
 
 
 
